@@ -71,3 +71,79 @@ var longestConsecutive = (nums) => {
 }
 ```
 
+## [187. 重复的DNA序列](https://leetcode-cn.com/problems/repeated-dna-sequences/)
+
+### 方法一：Hash表
+
+```js
+/**
+ * @param {string} s
+ * @return {string[]}
+ */
+var findRepeatedDnaSequences = function(s) {
+    const L = 10
+    const ans = []
+    const cnt = new Map()
+    const n = s.length
+    for (let i = 0; i <= n - L; ++i) {
+        const sub = s.slice(i, i + L)
+        cnt.set(sub, (cnt.get(sub) || 0) + 1)
+        if (cnt.get(sub) === 2) {
+            ans.push(sub)
+        }
+    }
+    return ans
+}
+```
+
+### 方法二：哈希表 + 滑动窗口 + 位运算
+
+由于 s 中只含有 4 种字符，我们可以将每个字符用 2 个比特表示，即：
+
+- A 表示为二进制 00；
+- C 表示为二进制 01；
+- G 表示为二进制 10；
+- T 表示为二进制 11。
+
+如此一来，一个长为 10 的字符串就可以用 20 个比特表示，而一个 int 整数有 32 个比特，足够容纳该字符串，因此我们可以将 s 的每个长为 10 的子串用一个 int 整数表示（只用低 20 位）。
+
+注意到上述字符串到整数的映射是一一映射，每个整数都对应着一个唯一的字符串，因此我们可以将方法一中的哈希表改为存储每个长为 10 的子串的整数表示。
+
+如果我们对每个长为 10 的子串都单独计算其整数表示，那么时间复杂度仍然和方法一一样为 O(NL)。为了优化时间复杂度，我们可以用一个大小固定为 1010 的滑动窗口来计算子串的整数表示。设当前滑动窗口对应的整数表示为 xx，当我们要计算下一个子串时，就将滑动窗口向右移动一位，此时会有一个新的字符进入窗口，以及窗口最左边的字符离开窗口，这些操作对应的位运算，按计算顺序表示如下：
+
+- 滑动窗口向右移动一位：x = x << 2，由于每个字符用 2 个比特表示，所以要左移 2 位；
+- 一个新的字符 ch 进入窗口：x = x | bin[ch]，这里bin[ch] 为字符 ch 的对应二进制；
+- 窗口最左边的字符离开窗口：x = x & ((1 << 20) - 1)，由于我们只考虑 x 的低 20 位比特，需要将其余位置零，即与上 (1 << 20) - 1。
+
+将这三步合并，就可以用 O(1) 的时间计算出下一个子串的整数表示，即 x = ((x << 2) | bin[ch]) & ((1 << 20) - 1)。
+
+```js
+var findRepeatedDnaSequences = function(s) {
+    const L = 10
+    const bin = new Map()
+    bin.set('A', 0)
+    bin.set('C', 1)
+    bin.set('G', 2)
+    bin.set('T', 3)
+    
+    const ans = []
+    const n = s.length
+    if (n <= L) {
+        return ans
+    }
+    let x = 0
+    for (let i = 0; i < L - 1; ++i) {
+        x = (x << 2) | bin.get(s[i])
+    }
+    const cnt = new Map()
+    for (let i = 0; i <= n - L; ++i) {
+        x = ((x << 2) | bin.get(s[i + L - 1])) & ((1 << (L * 2)) - 1)
+        cnt.set(x, (cnt.get(x) || 0) + 1)
+        if (cnt.get(x) === 2) {
+            ans.push(s.slice(i, i + L))
+        }
+    }
+    return ans
+}
+```
+
