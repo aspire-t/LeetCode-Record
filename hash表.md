@@ -228,3 +228,49 @@ var majorityElement = function(nums) {
 };
 ```
 
+## [869. 重新排序得到 2 的幂](https://leetcode-cn.com/problems/reordered-power-of-2/)
+
+### 方法一：打表 + DFS
+
+```js
+```
+
+### 方法二：预处理 + 哈希表
+
+```js
+const countDigits = (n) => {
+    const cnt = new Array(10).fill(0);
+    while (n) {
+        cnt[n % 10]++;
+        n = Math.floor(n / 10);
+    }
+    return cnt.join('');
+}
+
+
+
+var reorderedPowerOf2 = function(n) {
+    const powerOf2Digits = new Set();
+
+    for (let n = 1; n <= 1e9; n <<= 1) {
+        powerOf2Digits.add(countDigits(n));
+    }
+
+    return powerOf2Digits.has(countDigits(n));
+};
+```
+
+### 方法三：
+
+```c++
+class Solution {
+public:
+    bool reorderedPowerOf2(int n) {
+        unordered_set<string> uset={"1", "2", "4", "8", "16", "23", "46", "128", "256", "125", "0124", "0248", "0469", "1289", "13468", "23678", "35566", "011237", "122446", "224588", "0145678", "0122579", "0134449", "0368888", "11266777", "23334455", "01466788", "112234778", "234455668", "012356789", "0112344778"};
+        string s(to_string(n));
+        sort(s.begin(), s.end());
+        return uset.count(s);
+    }
+};
+```
+
