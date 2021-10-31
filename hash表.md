@@ -233,31 +233,57 @@ var majorityElement = function(nums) {
 ### 方法一：打表 + DFS
 
 ```js
+const reorderedPowerOf2 = (n) => {
+    const backtrack = (nums, idx, num) => {
+        if (idx === nums.length) {
+            return isPowerOfTwo(num);
+        }
+        for (let i = 0; i < nums.length; ++i) {
+            // 不能有前导零
+            if ((num === 0 && nums[i] === '0') || vis[i] || (i > 0 && !vis[i - 1] && nums[i] === nums[i - 1])) {
+                continue;
+            }
+            vis[i] = true;
+            if (backtrack(nums, idx + 1, num * 10 + nums[i].charCodeAt() - '0'.charCodeAt())) {
+                return true;
+            }
+            vis[i] = false;
+        }
+        return false;
+    }
+
+    const nums = Array.from('' + n);
+    nums.sort();
+    const vis = new Array(nums.length).fill(false);
+    return backtrack(nums, 0, 0);
+}
+
+const isPowerOfTwo = (n) => {
+    return (n & (n - 1)) === 0;
+}
 ```
 
 ### 方法二：预处理 + 哈希表
 
 ```js
 const countDigits = (n) => {
-    const cnt = new Array(10).fill(0);
+    const cnt = new Array(10).fill(0)
     while (n) {
-        cnt[n % 10]++;
-        n = Math.floor(n / 10);
+        cnt[n % 10]++
+        n = Math.floor(n / 10)
     }
-    return cnt.join('');
+    return cnt.join('')
 }
 
-
-
 var reorderedPowerOf2 = function(n) {
-    const powerOf2Digits = new Set();
+    const powerOf2Digits = new Set()
 
     for (let n = 1; n <= 1e9; n <<= 1) {
-        powerOf2Digits.add(countDigits(n));
+        powerOf2Digits.add(countDigits(n))
     }
 
-    return powerOf2Digits.has(countDigits(n));
-};
+    return powerOf2Digits.has(countDigits(n))
+}
 ```
 
 ### 方法三：
@@ -271,6 +297,87 @@ public:
         sort(s.begin(), s.end());
         return uset.count(s);
     }
+};
+```
+
+## [500. 键盘行](https://leetcode-cn.com/problems/keyboard-row/)
+
+### 方法一：hash表
+
+三个hash表
+
+```js
+/**
+ * @param {string[]} words
+ * @return {string[]}
+ */
+const strs = ["qwertyuiop", "asdfghjkl", "zxcvbnm"];
+const map = new Array(26);
+for(let i=0;i<strs.length;i++)
+    for(let j=0;j<strs[i].length;j++)
+        map[strs[i].charAt(j).charCodeAt() - 'a'.charCodeAt()] = i;
+
+var findWords = function(words) {
+    const res = [];
+    for(const word of words){
+        const lowerword = word.toLowerCase();
+        const check = new Set();
+        for(let j=0;j<word.length;j++){
+            check.add(map[lowerword.charAt(j).charCodeAt() - 'a'.charCodeAt()]);
+            if(check.size > 1)
+                break;
+        }
+        if(check.size<=1)
+            res.push(word);
+    }
+    return res;
+};
+```
+
+### 方法二：遍历
+
+我们为每一个英文字母标记其对应键盘上的行号，然后检测字符串中所有字符对应的行号是否相同。
+
+- 我们可以预处理计算出每个字符对应的行号。
+- 遍历字符串时，统一将大写字母转化为小写字母方便计算。
+
+```js
+var findWords = function(words) {
+    const list = [];
+    const rowIdx = "12210111011122000010020202";
+    for (const word of words) {
+        let isValid = true;
+        const idx = rowIdx[word[0].toLowerCase().charCodeAt() - 'a'.charCodeAt()];
+        for (let i = 1; i < word.length; ++i) {
+            if (rowIdx[word[i].toLowerCase().charCodeAt() - 'a'.charCodeAt()] !== idx) {
+                isValid = false;
+                break;
+            }
+        }
+        if (isValid) {
+            list.push(word);
+        }
+    }
+    return list;
+};
+
+const findWords = words => {
+    const keys = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
+    const res = [];
+    // 遍历三行键盘
+    keys.forEach(key => {
+        // 满足以下条件的单词放入res
+        res.push(
+            // 从words筛选出每个字母都在当前行的单词，并展开
+            ...words.filter(word => {
+                return word
+                    .toLowerCase()
+                    .split('')
+                    .every(char => key.includes(char));
+            })
+        );
+    });
+    return res;
 };
 ```
 
