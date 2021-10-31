@@ -302,39 +302,7 @@ public:
 
 ## [500. 键盘行](https://leetcode-cn.com/problems/keyboard-row/)
 
-### 方法一：hash表
-
-三个hash表
-
-```js
-/**
- * @param {string[]} words
- * @return {string[]}
- */
-const strs = ["qwertyuiop", "asdfghjkl", "zxcvbnm"];
-const map = new Array(26);
-for(let i=0;i<strs.length;i++)
-    for(let j=0;j<strs[i].length;j++)
-        map[strs[i].charAt(j).charCodeAt() - 'a'.charCodeAt()] = i;
-
-var findWords = function(words) {
-    const res = [];
-    for(const word of words){
-        const lowerword = word.toLowerCase();
-        const check = new Set();
-        for(let j=0;j<word.length;j++){
-            check.add(map[lowerword.charAt(j).charCodeAt() - 'a'.charCodeAt()]);
-            if(check.size > 1)
-                break;
-        }
-        if(check.size<=1)
-            res.push(word);
-    }
-    return res;
-};
-```
-
-### 方法二：遍历
+### 方法一：遍历
 
 我们为每一个英文字母标记其对应键盘上的行号，然后检测字符串中所有字符对应的行号是否相同。
 
@@ -342,6 +310,7 @@ var findWords = function(words) {
 - 遍历字符串时，统一将大写字母转化为小写字母方便计算。
 
 ```js
+// 官网写法
 var findWords = function(words) {
     const list = [];
     const rowIdx = "12210111011122000010020202";
@@ -361,6 +330,7 @@ var findWords = function(words) {
     return list;
 };
 
+// 这个比较好理解，但是用了太多的API
 const findWords = words => {
     const keys = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
     const res = [];
@@ -378,6 +348,52 @@ const findWords = words => {
         );
     });
     return res;
+};
+
+/**
+ * @param {string[]} words
+ * @return {string[]}
+ */
+// 和官网那个写法一个意思
+const strs = ["qwertyuiop", "asdfghjkl", "zxcvbnm"];
+const map = new Array(26);
+for(let i=0;i<strs.length;i++)
+    for(let j=0;j<strs[i].length;j++)
+        map[strs[i].charAt(j).charCodeAt() - 'a'.charCodeAt()] = i;
+// 这个map是存的a-z每个字母所在的行号， a在键盘第二行的位置， b在键盘第三行的位置，依次类推
+// map:
+// [
+//   1, 2, 2, 1, 0, 1, 1, 1,
+//   0, 1, 1, 1, 2, 2, 0, 0,
+//   0, 0, 1, 0, 0, 2, 0, 2,
+//   0, 2
+// ]
+var findWords = function(words) {
+    const res = [];
+    for(const word of words){
+        const lowerword = word.toLowerCase();
+        const check = new Set();
+        for(let j=0;j<word.length;j++){
+            check.add(map[lowerword.charAt(j).charCodeAt() - 'a'.charCodeAt()]);
+            if(check.size > 1)
+                break;
+        }
+        if(check.size<=1)
+            res.push(word);
+    }
+    return res;
+};
+```
+
+### 方法二：正则
+
+```js
+/**
+ * @param {string[]} words
+ * @return {string[]}
+ */
+var findWords = function(words) {
+    return words.filter(x => /^([qwertyuiop]+|[asdfghjkl]+|[zxcvbnm]+)$/i.test(x))
 };
 ```
 
