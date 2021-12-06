@@ -14,20 +14,20 @@
  */
 var findNthDigit = function(n) {
     if(n.length<=10){
-        return n;
+        return n
     }      
-    let digit=1,start=1,count=9;
+    let digit=1,start=1,count=9
     while(n>count){
-        n-=count;
-        digit+=1;
-        start=start*10;
-        count=start*digit*9;
+        n-=count
+        digit+=1
+        start=start*10
+        count=start*digit*9
     }
     // n - 1 是因为是从0开始算
-    let num=start+(n-1)/digit;
-    let index=(n-1)%digit;
+    let num=start+(n-1)/digit
+    let index=(n-1)%digit
     // '200'.chartAt(0) === '2' '200'.chartAt(1) === '0'
-    return num.toString().charAt(index);
+    return num.toString().charAt(index)
 };
 ```
 
